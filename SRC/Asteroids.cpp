@@ -95,6 +95,8 @@ void Asteroids::Start()
 
 	//Create the GUI
 	CreateGUI();
+	mScoreLabel->SetVisible(false);
+	mLivesLabel->SetVisible(false);
 
 	// Add a player (watcher) to the game world
 	mGameWorld->AddListener(&mPlayer);

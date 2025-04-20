@@ -16,6 +16,7 @@ shared_ptr<GUILabel> mTitleLabel;
 shared_ptr<GUILabel> mStartLabel;
 shared_ptr<GUILabel> mInstructionsLabel;
 shared_ptr<GUILabel> mDifficultyLabel;
+bool gameStarted = false;
 
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
@@ -88,10 +89,9 @@ void Asteroids::Start()
 	mDifficultyLabel->SetColor(GLVector3f(1.0f, 0.6f, 0.6f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mDifficultyLabel), GLVector2f(0.5f, 0.3f));
 
-	// Create a spaceship and add it to the world
-	mGameWorld->AddObject(CreateSpaceship());
+
 	// Create some asteroids and add them to the world
-	CreateAsteroids(10);
+	CreateAsteroids(3);
 
 	//Create the GUI
 	CreateGUI();
@@ -117,13 +117,22 @@ void Asteroids::Stop()
 
 void Asteroids::OnKeyPressed(uchar key, int x, int y)
 {
-	switch (key)
-	{
-	case ' ':
+	if (!gameStarted && key == ' ') {
+		// Start the game
+		gameStarted = true;
+		mTitleLabel->SetVisible(false);
+		mStartLabel->SetVisible(false);
+		mInstructionsLabel->SetVisible(false);
+		mDifficultyLabel->SetVisible(false);
+		mScoreLabel->SetVisible(true);
+		mLivesLabel->SetVisible(true);
+
+		// Create game objects
+		mGameWorld->AddObject(CreateSpaceship());
+		//CreateAsteroids(1);
+	}
+	else if (gameStarted && key == ' ') {
 		mSpaceship->Shoot();
-		break;
-	default:
-		break;
 	}
 }
 
@@ -191,7 +200,7 @@ void Asteroids::OnTimer(int value)
 	if (value == START_NEXT_LEVEL)
 	{
 		mLevel++;
-		int num_asteroids = 10 + 2 * mLevel;
+		int num_asteroids = 1 + 2 * mLevel;
 		CreateAsteroids(num_asteroids);
 	}
 

@@ -131,6 +131,13 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 		mGameWorld->AddObject(CreateSpaceship());
 		//CreateAsteroids(1);
 	}
+	else if (!gameStarted && (key == 'i' || key == 'I')) {
+		// Show instructions
+		mDifficultyLabel->SetVisible(false);
+		mTitleLabel->SetText("HOW TO PLAY:");
+		mStartLabel->SetText("(WASD) Arrow keys to move, SPACE to shoot!");
+		mInstructionsLabel->SetText("Press SPACE to start game");
+	}
 	else if (gameStarted && key == ' ') {
 		mSpaceship->Shoot();
 	}

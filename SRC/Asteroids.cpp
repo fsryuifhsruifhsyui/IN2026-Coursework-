@@ -64,24 +64,28 @@ void Asteroids::Start()
 	Animation *spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
 
 	// Menu GUI Stuff
-	mTitleLabel = make_shared<GUILabel>("* ASTEROIDS *");
+	mTitleLabel = make_shared<GUILabel>(" ASTEROIDS ");
 	mTitleLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mTitleLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+	mTitleLabel->SetColor(GLVector3f(0.8f, 0.2f, 1.0f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mTitleLabel), GLVector2f(0.5f, 0.7f));
 
 	mStartLabel = make_shared<GUILabel>("Press SPACE key to start");
 	mStartLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mStartLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+	mStartLabel->SetColor(GLVector3f(0.8f, 0.2f, 1.0f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mStartLabel), GLVector2f(0.5f, 0.5f));
 
 	mInstructionsLabel = make_shared<GUILabel>("Press 'I' to see game instructions");
 	mInstructionsLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mInstructionsLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+	mInstructionsLabel->SetColor(GLVector3f(0.0f, 1.0f, 0.0f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mInstructionsLabel), GLVector2f(0.5f, 0.4f));
 
 	mDifficultyLabel = make_shared<GUILabel>("Press 'D' to change game difficulty");
 	mDifficultyLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mDifficultyLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+	mDifficultyLabel->SetColor(GLVector3f(1.0f, 0.6f, 0.6f));
 	mGameDisplay->GetContainer()->AddComponent(static_pointer_cast<GUIComponent>(mDifficultyLabel), GLVector2f(0.5f, 0.3f));
 
 	// Create a spaceship and add it to the world

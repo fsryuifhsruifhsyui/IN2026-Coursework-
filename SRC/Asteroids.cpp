@@ -11,6 +11,7 @@
 #include "BoundingSphere.h"
 #include "GUILabel.h"
 #include "Explosion.h"
+#include "HighScoreKeeper.h"
 
 shared_ptr<GUILabel> mTitleLabel;
 shared_ptr<GUILabel> mStartLabel;
@@ -97,6 +98,7 @@ void Asteroids::Start()
 	CreateGUI();
 	mScoreLabel->SetVisible(false);
 	mLivesLabel->SetVisible(false);
+	mGameOverLabel->SetVisible(false);
 
 	// Add a player (watcher) to the game world
 	mGameWorld->AddListener(&mPlayer);
@@ -119,6 +121,45 @@ void Asteroids::Stop()
 
 void Asteroids::OnKeyPressed(uchar key, int x, int y)
 {
+
+	if (mEnteringName) {
+		if (key == 13 || key == '\r') { // Enter key
+			int score = mScoreKeeper.GetScore();
+			HighScoreKeeper::SaveScore(mNameEntry, score);
+			auto topScores = HighScoreKeeper::LoadScores();
+
+			// Hide entry label
+			mGameDisplay->GetContainer()->RemoveComponent(mNameEntryLabel);
+			mEnteringName = false;
+
+			// Show top 3 scores
+			for (auto& label : mHighScoreLabels) {
+				mGameDisplay->GetContainer()->RemoveComponent(label);
+			}
+			mHighScoreLabels.clear();
+
+			for (int i = 0; i < topScores.size() && i < 3; ++i) {
+				std::string text = std::to_string(i + 1) + ". " + topScores[i].name + " - " + std::to_string(topScores[i].score);
+				auto label = make_shared<GUILabel>(text);
+				label->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+				label->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+				mGameDisplay->GetContainer()->AddComponent(label, GLVector2f(0.5f, 0.2f - i * 0.05f));
+				mHighScoreLabels.push_back(label);
+			}
+		}
+		else if (key == 8 && !mNameEntry.empty()) { // Backspace
+			mNameEntry.pop_back();
+		}
+		else if (isprint(key) && mNameEntry.length() < 10) {
+			mNameEntry += key;
+		}
+
+		if (mNameEntryLabel) {
+			mNameEntryLabel->SetText("Enter Name: " + mNameEntry);
+		}
+		return;
+	}
+
 	if (!gameStarted && key == ' ') {
 		// Start the game
 		gameStarted = true;
@@ -131,13 +172,13 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 
 		// Create game objects
 		mGameWorld->AddObject(CreateSpaceship());
-		//CreateAsteroids(1);
+		CreateAsteroids(1);
 	}
 	else if (!gameStarted && (key == 'i' || key == 'I')) {
 		// Show instructions
 		mDifficultyLabel->SetVisible(false);
 		mTitleLabel->SetText("HOW TO PLAY:");
-		mStartLabel->SetText("(WASD) Arrow keys to move, SPACE to shoot!");
+		mStartLabel->SetText(" Arrow keys to move, SPACE to shoot!");
 		mInstructionsLabel->SetText("Press SPACE to start game");
 	}
 	else if (gameStarted && key == ' ') {
@@ -216,6 +257,14 @@ void Asteroids::OnTimer(int value)
 	if (value == SHOW_GAME_OVER)
 	{
 		mGameOverLabel->SetVisible(true);
+
+		// Start name entry mode
+		mEnteringName = true;
+		mNameEntry = "";
+		mNameEntryLabel = make_shared<GUILabel>("Enter Name: ");
+		mNameEntryLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+		mNameEntryLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+		mGameDisplay->GetContainer()->AddComponent(mNameEntryLabel, GLVector2f(0.5f, 0.35f));
 	}
 
 }

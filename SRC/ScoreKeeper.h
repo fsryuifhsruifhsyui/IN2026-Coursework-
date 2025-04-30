@@ -25,6 +25,8 @@ public:
 		}
 	}
 
+	int GetScore() const { return mScore; }
+
 	void AddListener(shared_ptr<IScoreListener> listener)
 	{
 		mListeners.push_back(listener);

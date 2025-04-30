@@ -9,6 +9,11 @@
 #include "ScoreKeeper.h"
 #include "Player.h"
 #include "IPlayerListener.h"
+#include <vector>
+#include <memory>
+
+using std::vector;
+using std::shared_ptr;
 
 class GameObject;
 class Spaceship;
@@ -68,6 +73,11 @@ private:
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;
+
+	bool mEnteringName = false;
+	std::string mNameEntry = "";
+	shared_ptr<GUILabel> mNameEntryLabel;
+	std::vector<shared_ptr<GUILabel>> mHighScoreLabels;
 };
 
 #endif

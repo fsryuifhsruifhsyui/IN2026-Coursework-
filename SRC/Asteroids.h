@@ -43,6 +43,8 @@ public:
 
 	void OnPlayerKilled(int lives_left);
 
+	void LivesChange(int lives_gain);
+
 	// Declaration of IGameWorldListener interface //////////////////////////////
 
 	void OnWorldUpdated(GameWorld* world) {}
@@ -60,11 +62,13 @@ private:
 
 	uint mLevel;
 	uint mAsteroidCount;
+	uint mExtraLivesPowerup;
 
 	void ResetSpaceship();
 	shared_ptr<GameObject> CreateSpaceship();
 	void CreateGUI();
 	void CreateAsteroids(const uint num_asteroids);
+	void CreateExtraLives(const uint num_extralives);
 	shared_ptr<GameObject> CreateExplosion();
 	
 	const static uint SHOW_GAME_OVER = 0;

@@ -24,6 +24,11 @@ public:
 			mLives -= 1;
 			FirePlayerKilled();
 		}
+
+		if (object->GetType() == GameObjectType("BonusLife")) {
+			mLives += 1;
+			LivesGained();
+		}
 	}
 
 	void AddListener(shared_ptr<IPlayerListener> listener)
@@ -37,6 +42,14 @@ public:
 		for (PlayerListenerList::iterator lit = mListeners.begin();
 			lit != mListeners.end(); ++lit) {
 			(*lit)->OnPlayerKilled(mLives);
+		}
+	}
+
+	void LivesGained()
+	{
+		for (PlayerListenerList::iterator lit = mListeners.begin();
+			lit != mListeners.end(); ++lit) {
+			(*lit)->LivesChange(mLives);
 		}
 	}
 

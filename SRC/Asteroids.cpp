@@ -12,6 +12,7 @@
 #include "GUILabel.h"
 #include "Explosion.h"
 #include "HighScoreKeeper.h"
+#include "BonusLife.h"
 
 shared_ptr<GUILabel> mTitleLabel;
 shared_ptr<GUILabel> mStartLabel;
@@ -27,6 +28,7 @@ Asteroids::Asteroids(int argc, char *argv[])
 {
 	mLevel = 0;
 	mAsteroidCount = 0;
+	mExtraLivesPowerup = 0;
 }
 
 /** Destructor. */
@@ -64,6 +66,7 @@ void Asteroids::Start()
 	Animation *explosion_anim = AnimationManager::GetInstance().CreateAnimationFromFile("explosion", 64, 1024, 64, 64, "explosion_fs.png");
 	Animation *asteroid1_anim = AnimationManager::GetInstance().CreateAnimationFromFile("asteroid1", 128, 8192, 128, 128, "asteroid1_fs.png");
 	Animation *spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
+	Animation* extralife_anim = AnimationManager::GetInstance().CreateAnimationFromFile("Heart_fs", 64, 64, 64, 64, "Heart_fs.png");
 
 	// Menu GUI Stuff
 	mTitleLabel = make_shared<GUILabel>(" ASTEROIDS ");
@@ -196,8 +199,14 @@ void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 	case GLUT_KEY_UP: mSpaceship->Thrust(10); break;
 	// If left arrow key is pressed start rotating anti-clockwise
 	case GLUT_KEY_LEFT: mSpaceship->Rotate(90); break;
+        if (mSpaceship) {
+            mSpaceship->Rotate(90);
+        }
 	// If right arrow key is pressed start rotating clockwise
 	case GLUT_KEY_RIGHT: mSpaceship->Rotate(-90); break;
+		if (mSpaceship) {
+			mSpaceship->Rotate(90);
+		}
 	// Default case - do nothing
 	default: break;
 	}
@@ -235,6 +244,11 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 			SetTimer(500, START_NEXT_LEVEL); 
 		}
 	}
+
+	if (object->GetType() == GameObjectType("BonusLife"))
+	{
+		mExtraLivesPowerup++;
+	}
 }
 
 // PUBLIC INSTANCE METHODS IMPLEMENTING ITimerListener ////////////////////////
@@ -251,6 +265,9 @@ void Asteroids::OnTimer(int value)
 	{
 		mLevel++;
 		int num_asteroids = 1 + 2 * mLevel;
+		if (mLevel % 3 == 0) {
+			CreateExtraLives(2);
+		}
 		CreateAsteroids(num_asteroids);
 	}
 
@@ -307,6 +324,24 @@ void Asteroids::CreateAsteroids(const uint num_asteroids)
 	}
 }
 
+void Asteroids::CreateExtraLives(const uint num_bonuslife)
+{
+	mExtraLivesPowerup = num_bonuslife;
+	for (uint i = 0; i < num_bonuslife; i++)
+	{
+		Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("Heart_fs");
+		shared_ptr<Sprite> bonuslife_sprite 
+			= make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+		shared_ptr<GameObject> bonuslife = make_shared<BonusLife>();
+		bonuslife->SetBoundingShape(make_shared<BoundingSphere>(bonuslife->GetThisPtr(), 3.0f));
+		bonuslife->SetSprite(bonuslife_sprite);
+		bonuslife->SetScale(0.1f);
+		mGameWorld->AddObject(bonuslife);
+	}
+}
+
+
+
 void Asteroids::CreateGUI()
 {
 	// Add a (transparent) border around the edge of the game display
@@ -351,6 +386,15 @@ void Asteroids::OnScoreChanged(int score)
 	// Get the score message as a string
 	std::string score_msg = msg_stream.str();
 	mScoreLabel->SetText(score_msg);
+}
+
+void Asteroids::LivesChange(int lives_gain)
+{
+	std::ostringstream msg_stream;
+	msg_stream << "Lives: " << lives_gain;
+	std::string lives_msg = msg_stream.str();
+	mLivesLabel->SetText(lives_msg);
+
 }
 
 void Asteroids::OnPlayerKilled(int lives_left)

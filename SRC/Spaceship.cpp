@@ -100,7 +100,15 @@ bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 	return mBoundingShape->CollisionTest(o->GetBoundingShape());
 }
 
-void Spaceship::OnCollision(const GameObjectList &objects)
+void Spaceship::OnCollision(const GameObjectList& objects)
 {
+	for (auto obj : objects)
+	{
+		if (obj->GetType() == GameObjectType("BonusLife"))
+		{
+			return;
+		}
+	}
+
 	mWorld->FlagForRemoval(GetThisPtr());
 }

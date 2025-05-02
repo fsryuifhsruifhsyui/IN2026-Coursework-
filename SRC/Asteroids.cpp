@@ -13,6 +13,8 @@
 #include "Explosion.h"
 #include "HighScoreKeeper.h"
 #include "BonusLife.h"
+#include "BlackHole.h"
+#include "Invulnerability.h"
 
 shared_ptr<GUILabel> mTitleLabel;
 shared_ptr<GUILabel> mStartLabel;
@@ -67,6 +69,8 @@ void Asteroids::Start()
 	Animation *asteroid1_anim = AnimationManager::GetInstance().CreateAnimationFromFile("asteroid1", 128, 8192, 128, 128, "asteroid1_fs.png");
 	Animation *spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
 	Animation* extralife_anim = AnimationManager::GetInstance().CreateAnimationFromFile("Heart_fs", 64, 64, 64, 64, "Heart_fs.png");
+	Animation* blackhole_anim = AnimationManager::GetInstance().CreateAnimationFromFile("blackhole_fs", 128, 128, 128, 128, "blackhole_fs.png");
+	Animation* invuln_anim = AnimationManager::GetInstance().CreateAnimationFromFile("invulnerability_fs", 64, 64, 64, 64, "invulnerability_fs.png");
 
 	// Menu GUI Stuff
 	mTitleLabel = make_shared<GUILabel>(" ASTEROIDS ");
@@ -95,8 +99,8 @@ void Asteroids::Start()
 
 
 	// Create some asteroids and add them to the world
-	CreateAsteroids(3);
-
+	CreateAsteroids(2);
+	
 	//Create the GUI
 	CreateGUI();
 	mScoreLabel->SetVisible(false);
@@ -249,6 +253,11 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 	{
 		mExtraLivesPowerup++;
 	}
+
+	if (object->GetType() == GameObjectType("Invulnerability"))
+	{
+		SetTimer(5000, DISABLE_INVULNERABILITY);
+	}
 }
 
 // PUBLIC INSTANCE METHODS IMPLEMENTING ITimerListener ////////////////////////
@@ -264,7 +273,7 @@ void Asteroids::OnTimer(int value)
 	if (value == START_NEXT_LEVEL)
 	{
 		mLevel++;
-		int num_asteroids = 1 + 2 * mLevel;
+		int num_asteroids = 1 + mLevel;
 		if (mLevel % 3 == 0) {
 			CreateExtraLives(2);
 		}
@@ -284,6 +293,18 @@ void Asteroids::OnTimer(int value)
 		mGameDisplay->GetContainer()->AddComponent(mNameEntryLabel, GLVector2f(0.5f, 0.35f));
 	}
 
+	if (value == DESTROY_BLACKHOLE)
+	{
+		if (!mBlackHoles.empty()) {
+			mGameWorld->FlagForRemoval(mBlackHoles.front());
+			mBlackHoles.erase(mBlackHoles.begin());
+		}
+	}
+
+	if (value == DISABLE_INVULNERABILITY)
+	{
+		if (mSpaceship) mSpaceship->SetInvulnerable(false);
+	}
 }
 
 // PROTECTED INSTANCE METHODS /////////////////////////////////////////////////
@@ -340,7 +361,40 @@ void Asteroids::CreateExtraLives(const uint num_bonuslife)
 	}
 }
 
+void Asteroids::CreateBlackHole(const uint num_blackholes)
+{
+	for (uint i = 0; i < num_blackholes; i++)
+	{
+		Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("blackhole_fs");
+		shared_ptr<Sprite> blackhole_sprite = make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
 
+		shared_ptr<GameObject> blackhole = make_shared<BlackHole>();
+		blackhole->SetBoundingShape(make_shared<BoundingSphere>(blackhole->GetThisPtr(), 2.0f));
+		blackhole->SetSprite(blackhole_sprite);
+		blackhole->SetScale(0.2f);
+
+		mGameWorld->AddObject(blackhole);
+		mBlackHoles.push_back(blackhole); 
+
+		SetTimer(2000, DESTROY_BLACKHOLE); 
+	}
+}
+
+void Asteroids::CreateInvulnerability(const uint num_powerups)
+{
+	for (uint i = 0; i < num_powerups; i++)
+	{
+		Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("invulnerability_fs");
+		shared_ptr<Sprite> invuln_sprite = make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+
+		shared_ptr<GameObject> invulnerability = make_shared<Invulnerability>();
+		invulnerability->SetBoundingShape(make_shared<BoundingSphere>(invulnerability->GetThisPtr(), 3.0f));
+		invulnerability->SetSprite(invuln_sprite);
+		invulnerability->SetScale(0.2f);
+
+		mGameWorld->AddObject(invulnerability);
+	}
+}
 
 void Asteroids::CreateGUI()
 {
@@ -386,6 +440,14 @@ void Asteroids::OnScoreChanged(int score)
 	// Get the score message as a string
 	std::string score_msg = msg_stream.str();
 	mScoreLabel->SetText(score_msg);
+
+	if (score % 100 == 0 && score != 0) {
+		CreateBlackHole(1);
+	}
+	if (score % 70 == 0 && score != 0){
+		CreateInvulnerability(1); 
+	}
+
 }
 
 void Asteroids::LivesChange(int lives_gain)

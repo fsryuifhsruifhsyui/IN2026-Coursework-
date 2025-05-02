@@ -25,6 +25,8 @@ public:
 	Asteroids(int argc, char *argv[]);
 	virtual ~Asteroids(void);
 
+	const static uint DISABLE_INVULNERABILITY = 4;
+
 	virtual void Start(void);
 	virtual void Stop(void);
 
@@ -69,11 +71,16 @@ private:
 	void CreateGUI();
 	void CreateAsteroids(const uint num_asteroids);
 	void CreateExtraLives(const uint num_extralives);
+	void CreateBlackHole(const uint num_blackholes);
+	void CreateInvulnerability(const uint num_powerups);
 	shared_ptr<GameObject> CreateExplosion();
+
+	std::vector<shared_ptr<GameObject>> mBlackHoles; 
 	
 	const static uint SHOW_GAME_OVER = 0;
 	const static uint START_NEXT_LEVEL = 1;
 	const static uint CREATE_NEW_PLAYER = 2;
+	const static uint DESTROY_BLACKHOLE = 3;
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;

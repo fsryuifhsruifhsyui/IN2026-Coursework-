@@ -94,6 +94,8 @@ void Spaceship::Shoot(void)
 
 bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 {
+	if (mIsInvulnerable) return false; 
+
 	if (o->GetType() != GameObjectType("Asteroid")) return false;
 	if (mBoundingShape.get() == NULL) return false;
 	if (o->GetBoundingShape().get() == NULL) return false;
@@ -102,11 +104,13 @@ bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 
 void Spaceship::OnCollision(const GameObjectList& objects)
 {
+	if (mIsInvulnerable) return;
 	for (auto obj : objects)
 	{
-		if (obj->GetType() == GameObjectType("BonusLife"))
+		if (obj->GetType() == GameObjectType("BonusLife") ||
+			obj->GetType() == GameObjectType("Invulnerability"))
 		{
-			return;
+			return; 
 		}
 	}
 

@@ -188,6 +188,12 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 		mStartLabel->SetText(" Arrow keys to move, SPACE to shoot!");
 		mInstructionsLabel->SetText("Press SPACE to start game");
 	}
+	else if (!gameStarted && (key == 'd' || key == 'D')) {
+		mDifficultyLabel->SetVisible(false);
+		mTitleLabel->SetText("Heart - Gain Extra Lives");
+		mStartLabel->SetText("Black Hole - Destroy Asteroids");
+		mInstructionsLabel->SetText("Gold Shield - Temporary Invincible");
+	}
 	else if (gameStarted && key == ' ') {
 		mSpaceship->Shoot();
 	}

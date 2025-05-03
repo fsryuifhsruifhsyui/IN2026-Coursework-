@@ -376,7 +376,7 @@ void Asteroids::CreateBlackHole(const uint num_blackholes)
 		mGameWorld->AddObject(blackhole);
 		mBlackHoles.push_back(blackhole); 
 
-		SetTimer(2000, DESTROY_BLACKHOLE); 
+		SetTimer(3000, DESTROY_BLACKHOLE); 
 	}
 }
 
@@ -441,10 +441,10 @@ void Asteroids::OnScoreChanged(int score)
 	std::string score_msg = msg_stream.str();
 	mScoreLabel->SetText(score_msg);
 
-	if (score % 100 == 0 && score != 0) {
+	if (score % 120 == 0 && score != 0) {
 		CreateBlackHole(1);
 	}
-	if (score % 70 == 0 && score != 0){
+	if (score % 80 == 0 && score != 0){
 		CreateInvulnerability(1); 
 	}
 
